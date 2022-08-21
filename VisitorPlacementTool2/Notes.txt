@@ -1,0 +1,70 @@
+Gedachtegang per class / functionaliteit
+
+************************************************************
+AREA
+************************************************************
+Genoeg areas genereren?
+- Moet even lang als parcours, hoe houd je er optimaal rekening mee?
+-
+-
+-
+-
+
+************************************************************
+EVENT
+************************************************************
+-
+-
+-
+-
+
+
+************************************************************
+VALIDATOR
+************************************************************
+-Controleren of er aaneenlopend plek is
+- Vooraan checken, anders volgend vak? Als het kan
+- 
+-
+-
+
+
+
+************************************************************
+SORTING & PLACEMENT
+************************************************************
+ 
+Sorteren:
+Groepen met kinderen eerst, vervolgens volwassenen
+
+
+Grootste groep met kinderen pakken, 
+
+
+
+
+plaatsen v
+
+
+
+Vervolgens  kleinere groep
+
+
+
+
+Als laatste groep met volwassenen pakken, 
+
+
+
+plaatsen, vervolgens 
+-Zelfde functie
+
+
+steeds kleiner
+
+
+************************************************************
+Regels
+************************************************************
+
+ 
