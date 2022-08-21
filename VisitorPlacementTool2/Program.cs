@@ -19,39 +19,46 @@ public class Program
         (
             groupGenerator.GenerateMaxVisitorGroups(actualVisitors)
         );
-        
+
         var competition = new Competition.Competition(competitionDate, registerDeadline, maxVisitors);
 
         //Telaat
         foreach (var visitorGroup in groupContainer.GetGroups())
         {
-            bool HasAdults = false;
-             foreach (var visitor in visitorGroup.GetVisitors())
+            var hasAdults = false;
+            foreach (var visitor in visitorGroup.GetVisitors())
             {
                 if (visitor.RegisteredTime > registerDeadline)
                 {
                     visitorGroup.RemoveVisitor(visitor);
-                    visitorContainer.RejectVisitor(visitor, "Registration was to late");
+                    visitorContainer.RejectVisitor(visitor, "Registration was too late");
                 }
-                
-            }
-             
-        }
+                else
+                {
+                    if (visitor.IsAnAdult(competitionDate))
+                    {
+                        hasAdults = true;
+                    }
+                }
 
+                if (!hasAdults)
+                {
+                    //remove group
+                    //remove visitors with reason "No adults"
+                }
+            }
+        }
 
         //Weigeren bij teveel bezoekers
         // if (actualVisitors > competition.GetNumberOfSeats())
         // {
         //     
         // }
-        
-            
-        
-        
-        
+
+
         LogVenue(competition);
     }
-    
+
     private static int ActualVisitors()
     {
         Console.WriteLine("How many are trying to visit?");
@@ -62,10 +69,11 @@ public class Program
             // do something
             return output;
         }
+
         Console.WriteLine("Invalid input, please enter a number");
         return ActualVisitors();
     }
-    
+
     //Todo: add error handling for date in past
     private static DateTime RegisterDeadline(DateTime competitionDate)
     {
@@ -110,7 +118,7 @@ public class Program
             // do something
             return output;
         }
-        
+
         Console.WriteLine("Invalid input, please enter a number");
         return MaxVisitors();
     }
