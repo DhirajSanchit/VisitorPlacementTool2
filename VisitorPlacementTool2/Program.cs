@@ -25,6 +25,7 @@ public class Program
         //Telaat
         foreach (var visitorGroup in groupContainer.GetGroups())
         {
+            bool HasAdults = false;
              foreach (var visitor in visitorGroup.GetVisitors())
             {
                 if (visitor.RegisteredTime > registerDeadline)
