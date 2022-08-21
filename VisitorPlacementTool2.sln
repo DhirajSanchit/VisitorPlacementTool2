@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitorPlacementTool2", "VisitorPlacementTool2\VisitorPlacementTool2.csproj", "{F3F0BB75-2634-4793-B17B-BC62901F41CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIsitorPlacementTests", "VIsitorPlacementTests\VIsitorPlacementTests.csproj", "{FA8FA81C-751B-4A9E-8700-1CA4708FE4B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{F3F0BB75-2634-4793-B17B-BC62901F41CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3F0BB75-2634-4793-B17B-BC62901F41CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3F0BB75-2634-4793-B17B-BC62901F41CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA8FA81C-751B-4A9E-8700-1CA4708FE4B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA8FA81C-751B-4A9E-8700-1CA4708FE4B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA8FA81C-751B-4A9E-8700-1CA4708FE4B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA8FA81C-751B-4A9E-8700-1CA4708FE4B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
