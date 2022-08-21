@@ -28,7 +28,7 @@ public class Area
         int count = 0;
         foreach (var row in Rows)
         {
-            count += row.Seats.Count();
+            count += row.Seats.Count;
         }
         return count;
     }
