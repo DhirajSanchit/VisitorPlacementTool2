@@ -26,9 +26,9 @@ public class SeatTest
         //arrange
         var seatNr = 1;
         var seat = new Seat(seatNr);
-        // var visitor = new Visitor("Visitor1", new DateTime(12/20/2001));
-        // //act
-        // seat.PlaceVisitor(visitor);
+        var visitor = new Visitor("Visitor1", new DateTime(2001,12,20), new DateTime(2022,5,21));
+        //act
+        seat.PlaceVisitor(visitor);
         //assert
         Assert.AreEqual("Visitor1",seat.Visitor.Name);
     }
@@ -51,9 +51,9 @@ public class SeatTest
         //arrange
         var seatNr = 1;
         var seat = new Seat(seatNr);
-        // var visitor = new Visitor("Visitor1", new DateTime(12/20/2001));
-        // //act
-        // seat.PlaceVisitor(visitor);
+        var visitor = new Visitor("Visitor1", new DateTime(2001,12,20), new DateTime(2022,5,19));
+        //act
+        seat.PlaceVisitor(visitor);
         var result = seat.IsOccupied();
         //assert
         Assert.IsTrue(result);
