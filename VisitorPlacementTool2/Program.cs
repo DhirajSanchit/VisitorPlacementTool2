@@ -41,6 +41,8 @@ public class Program
         var competition = new Competition.Competition(competitionDate, registerDeadline, maxVisitors);
 
         //Filter visitorgroups on register date and composition
+        
+        //TODO: Wrap in functions
         foreach (var visitorGroup in groupContainer.GetGroups())
         {   
             //Prepare list for visitors to be rejected and removed
@@ -50,26 +52,37 @@ public class Program
             var hasAdults = false;
             
             //Check if the visitors in the group who have registered on time
+            //TODO: FILTER
+            //TODO: Extract method date filter, adult filter
+            
+            
             foreach (var visitor in visitorGroup.GetVisitors())
             {
-                if (visitor.RegisteredTime > registerDeadline)
-                {
-                    //Have not met the deadline, remove
-                    ToBeRemoved.Add(visitor);
-                    
-                    //Save the the removed visitors with reason of rejection
-                    visitorContainer.RejectVisitor(visitor, "Registration was too late");
-                }
+                
+                FilterByRegisteredDate(visitor, registerDeadline, ToBeRemoved, visitorContainer);
+                
+                // if (visitor.RegisteredTime > registerDeadline)
+                // {
+                //     //Have not met the deadline, remove
+                //     ToBeRemoved.Add(visitor);
+                //     
+                //     //Save the the removed visitors with reason of rejection
+                //     visitorContainer.RejectVisitor(visitor, "Registration was too late");
+                // }
                 
                 //Now check on the visitor-groups that remain if they contain adults
-                else
-                {
-                    if (visitor.IsAnAdult(competitionDate))
-                    {
-                        hasAdults = true;
-                    }
-                }
+                //Call method: FilterByAdult
+                
+                // else
+                // {
+                //     if (visitor.IsAnAdult(competitionDate))
+                //     {
+                //         hasAdults = true;
+                //     }
+                // }
+                
             }
+
             
             //Collected all the visitors that have been filtered and 
             foreach (var visitor in ToBeRemoved)
@@ -93,8 +106,26 @@ public class Program
 
         //Creates the layout
         LogVenue(competition);
-        
     }
+    
+    
+    
+    public static void FilterByRegisteredDate(Visitor visitor, DateTime Deadline, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
+    {
+        
+        if (visitor.RegisteredTime > Deadline)
+        {
+            //Have not met the deadline, remove
+            toBeRemoved.Add(visitor);
+                    
+            //Save the the removed visitors with reason of rejection
+            visitorContainer.RejectVisitor(visitor, "Registration was too late");
+        }
+    }    
+    
+    
+    
+    
     
     //Asks for the Actual visitors that have shown up
     private static int ActualVisitors()
