@@ -2,16 +2,22 @@ using System.Collections.Generic;
 
 namespace VisitorPlacementTool2.Track;
 
+/// <summary>
+/// this class is used to store the data of the area which visitors can be placed in
+/// containing a list of Rows
 public class Area
 {
     public string Name { get; set; }
     public List<Row> Rows { get; set; }
     
+    //Empty Constructor
     public Area()
     {
         Rows = new();
     }
 
+    
+    //Constructor that creates a rectangular area with the given number of rows and columns
     public Area(string areaName, int rowAmount, int rowLength)
     {
         Rows = new List<Row>();
@@ -23,6 +29,7 @@ public class Area
 
     }
 
+    //Returns the number of rows seats in the area
     public int GetNumberOfSeats()
     {
         int count = 0;

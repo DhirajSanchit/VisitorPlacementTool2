@@ -3,6 +3,11 @@ using VisitorPlacementTool2.Group;
 
 namespace VisitorPlacementTool2.Containers;
 
+/// <summary>
+/// Container class for storing the  visitorgroups
+/// </summary>
+
+
 public class GroupContainer
 {
     private List<VisitorGroup> Groups;

@@ -4,6 +4,7 @@ namespace VisitorPlacementTool2.Track;
 
 public class Seat
 {
+    
     public int Number { get; set; }
     public Visitor Visitor { get; set; }
 
@@ -12,6 +13,7 @@ public class Seat
         Number = seatNr;
     }
 
+    //"places" the visitor in the seat
     public bool PlaceVisitor(Visitor visitor)
     {
         if (IsOccupied()) return false;
@@ -19,7 +21,8 @@ public class Seat
         Visitor = visitor;
         return true;
     }
-
+    
+    //Checks if the seat is occupied
     public bool IsOccupied()
     {
         return !Equals(Visitor, default(Visitor));

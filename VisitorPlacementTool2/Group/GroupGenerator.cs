@@ -27,6 +27,8 @@ public class GroupGenerator
     //-Create a group with group size.
 
     //Generates a single group with visitors and returns it.
+    
+    //Generates a single group with visitors and returns it with a group Id.
     public VisitorGroup GenerateVisitorGroup(int id)
     { 
         VisitorGenerator visitorGenerator = new();
@@ -55,7 +57,9 @@ public class GroupGenerator
     //
     //     return visitorGroups;
     // }
-
+    
+    
+    //Method creates the maximum amount of visitor groups possible based on the max amount of visitors allowed
     public List<VisitorGroup> GenerateMaxVisitorGroups(int maxVisitors)
     {
         List<VisitorGroup> visitorGroups = new List<VisitorGroup>();
