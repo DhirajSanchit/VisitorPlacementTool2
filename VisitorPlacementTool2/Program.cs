@@ -54,13 +54,12 @@ public class Program
             //Check if the visitors in the group who have registered on time
             //TODO: FILTER
             //TODO: Extract method date filter, adult filter
-            
-            
+
+
             foreach (var visitor in visitorGroup.GetVisitors())
             {
-                
-                FilterByRegisteredDate(visitor, registerDeadline, ToBeRemoved, visitorContainer);
-                
+                Filter(visitor, registerDeadline, ToBeRemoved, visitorContainer);
+
                 // if (visitor.RegisteredTime > registerDeadline)
                 // {
                 //     //Have not met the deadline, remove
@@ -69,21 +68,33 @@ public class Program
                 //     //Save the the removed visitors with reason of rejection
                 //     visitorContainer.RejectVisitor(visitor, "Registration was too late");
                 // }
-                
-                //Now check on the visitor-groups that remain if they contain adults
-                //Call method: FilterByAdult
-                
-                // else
-                // {
-                //     if (visitor.IsAnAdult(competitionDate))
-                //     {
-                //         hasAdults = true;
-                //     }
-                // }
-                
-            }
 
+                //Now check on the visitor-groups that remain if they contain adults
+                
+                
+               //Referencepoint 
+               // else {
+               //      if (visitor.IsAnAdult(competitionDate))
+               //      {
+               //          hasAdults = true;
+               //      }
+               //  }
+            }
             
+            //werk plz. big yay. very mooij
+            //Check for each visitor group that remains if there are adults in it
+            //Do they not contain adults? Add them to the ToBeRemoved List with the reason of rejection
+            
+            //Compare the visitorslists against ToBeRemoved, if they are in ToBeRemoved, remove them from the visitorgroup
+            
+            //Remove the empty groups from the groupcontainer
+            //Place the remaining groups.
+            
+            //TODO: Extract method adult filter
+            // foreach (var visitor in visitorGroup.GetVisitors())
+
+
+
             //Collected all the visitors that have been filtered and 
             foreach (var visitor in ToBeRemoved)
             {
@@ -110,9 +121,8 @@ public class Program
     
     
     
-    public static void FilterByRegisteredDate(Visitor visitor, DateTime Deadline, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
+    public static void Filter(Visitor visitor, DateTime Deadline, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
     {
-        
         if (visitor.RegisteredTime > Deadline)
         {
             //Have not met the deadline, remove
@@ -121,6 +131,17 @@ public class Program
             //Save the the removed visitors with reason of rejection
             visitorContainer.RejectVisitor(visitor, "Registration was too late");
         }
+
+        // else
+        // {
+        //     if (!visitor.IsAnAdult(competitionDate))
+        //     {
+        //         toBeRemoved.Add(visitor);
+        //         visitorContainer.RejectVisitor(visitor, "Registration was too late");
+        //
+        //         hasAdults = true;
+        //     }
+        // }
     }    
     
     
