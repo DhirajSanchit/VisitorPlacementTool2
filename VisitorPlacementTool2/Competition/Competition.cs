@@ -4,6 +4,15 @@ using VisitorPlacementTool2.Track;
 
 namespace VisitorPlacementTool2.Competition
 {
+    
+    /// <summary>
+    /// Class represents an event. Competition is used, because "Event" is a reserved class etc. in C#.
+    ///
+    /// According to the case:
+    /// -a list of areas for the event is created.
+    /// -Visitors should have registered to the event before a date 
+    /// -Event should hold a maximum of visitors, based on a permit.
+    /// </summary>
     public class Competition
     {
         public DateTime CompetitionDate { get; set; }
@@ -15,7 +24,9 @@ namespace VisitorPlacementTool2.Competition
         {
             
         }
-
+        
+        //Constructor for the competition.
+        //Takes a date for input, a deadline for registration, and a maximum amount of visitors used for the simulation.
         public Competition(DateTime competitionDate, DateTime registerDeadline, int maxVisitorAmount)
         {
             AreaGenerator areaGenerator = new AreaGenerator();
@@ -25,6 +36,7 @@ namespace VisitorPlacementTool2.Competition
             MaxVisitorAmount = maxVisitorAmount;
         }
 
+        //Returns a total number of seats generated for the event.
         public int GetNumberOfSeats()
         {
             int count = 0;
@@ -37,6 +49,9 @@ namespace VisitorPlacementTool2.Competition
         }
 
 
+        //Methods below are from previous attempts of the project.
+        //Saved for reference
+        //Todo: Remove code below when not needed anymore.
 
         //returns all occupied seats
         // private List<Seat> OccupiedSeats(List<Area> areas)
