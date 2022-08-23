@@ -7,7 +7,7 @@ namespace VIsitorPlacementTests.LogicTests;
 
 
 
-//Todo 
+//Todo: Snelle test om of list correct werken volgens C#, mag weg.
 [TestClass]
 public class PlacementTest
 {
