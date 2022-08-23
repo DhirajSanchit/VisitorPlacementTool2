@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using VisitorPlacementTool2.Visitors;
 
 namespace VisitorPlacementTool2.Containers;
@@ -11,7 +12,12 @@ public class VisitorContainer
 {
     //Visitor list that stores visitors which are rejected with the reason.
     private List<Visitor> rejectedVisitors;
-    
+
+    public VisitorContainer()
+    {
+        rejectedVisitors = new();
+    }
+
     //Adds a visitor to the list of rejected visitors with the reason why.
     public void RejectVisitor(Visitor visitor, string reason)
     {

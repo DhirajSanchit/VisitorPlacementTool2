@@ -34,4 +34,16 @@ public class GroupContainer
     {
         Groups.Remove(group);
     }
+    
+    public VisitorGroup GetGroupById(int id)
+    {
+        foreach (VisitorGroup group in Groups)
+        {
+            if (group.GetId() == id)
+            {
+                return group;
+            }
+        }
+        return null;
+    }
 }

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using VisitorPlacementTool2.Competition;
 using VisitorPlacementTool2.Containers;
 using VisitorPlacementTool2.Group;
 using VisitorPlacementTool2.Visitors;
+
 
 namespace VisitorPlacementTool2;
 
@@ -58,44 +61,27 @@ public class Program
 
             foreach (var visitor in visitorGroup.GetVisitors())
             {
-                Filter(visitor, registerDeadline, ToBeRemoved, visitorContainer);
-
-                // if (visitor.RegisteredTime > registerDeadline)
-                // {
-                //     //Have not met the deadline, remove
-                //     ToBeRemoved.Add(visitor);
-                //     
-                //     //Save the the removed visitors with reason of rejection
-                //     visitorContainer.RejectVisitor(visitor, "Registration was too late");
-                // }
+                if (FilterRegistrationDeadline(visitor, competition, ToBeRemoved, visitorContainer))
+                {
+                    hasAdults = true;
+                }
 
                 //Now check on the visitor-groups that remain if they contain adults
-                
-                
-               //Referencepoint 
-               // else {
-               //      if (visitor.IsAnAdult(competitionDate))
-               //      {
-               //          hasAdults = true;
-               //      }
-               //  }
+                //Check for each visitor group that remains if there are adults in it
+                //Do they not contain adults? Add them to the ToBeRemoved List with the reason of rejection
+            
+                //Compare the visitorslists against ToBeRemoved, if they are in ToBeRemoved, remove them from the visitorgroup
+            
+                //Remove the empty groups from the groupcontainer
+                //Place the remaining groups.
+            
+                //TODO: Extract method adult filter
+                // foreach (var visitor in visitorGroup.GetVisitors())
             }
             
-            //werk plz. big yay. very mooij
-            //Check for each visitor group that remains if there are adults in it
-            //Do they not contain adults? Add them to the ToBeRemoved List with the reason of rejection
-            
-            //Compare the visitorslists against ToBeRemoved, if they are in ToBeRemoved, remove them from the visitorgroup
-            
-            //Remove the empty groups from the groupcontainer
-            //Place the remaining groups.
-            
-            //TODO: Extract method adult filter
-            // foreach (var visitor in visitorGroup.GetVisitors())
-
-
-
             //Collected all the visitors that have been filtered and 
+            actualVisitors-= ToBeRemoved.Count;
+            
             foreach (var visitor in ToBeRemoved)
             {
                 // remove them from visitors that are allowed to enter
@@ -104,26 +90,75 @@ public class Program
             
             if (!hasAdults)
             {
-                //remove visitors with reason "No adults"
-                
+                ToBeRemoved.Clear();
+                FilterByHasAdults(visitorGroup, ToBeRemoved, visitorContainer); 
+                actualVisitors -= ToBeRemoved.Count;
             }
+
         }
 
-        //Weigeren bij teveel bezoekers
-        // if (actualVisitors > competition.GetNumberOfSeats())
-        // {
-        //     
-        // }
+        
+        //Overgebleven bezoekers aan het einde weigeren op op capactiteit.
+        if (actualVisitors > competition.GetNumberOfSeats())
+        {
+            List<Visitor> visitors = new();
+            foreach (var group in groupContainer.GetGroups())
+            {
+                foreach (var visitor in group.GetVisitors())
+                { 
+                    visitors.Add(visitor);
+                }
+            } 
+            visitors.Sort((x, y) => x.RegisteredTime.CompareTo(y.RegisteredTime));
+            
+            for (int i = 0; visitors.Count > competition.GetNumberOfSeats(); i++)
+            { 
+                //return last visitor in list
+                var visitor = visitors[visitors.Count-1];
+                visitorContainer.RejectVisitor(visitor, "Overcapacity");
 
+                var group = groupContainer.GetGroupById(visitor.GroupId);
+                group.RemoveVisitor(visitor);
+
+                var capactiyRemovedVisitors = new List<Visitor>();
+                FilterByHasAdults(group, capactiyRemovedVisitors, visitorContainer);
+                
+                foreach (var visitorToBeRemoved in capactiyRemovedVisitors)
+                {
+                    visitors.Remove(visitorToBeRemoved);
+                }
+                //remove visitor from list
+                visitors.Remove(visitor);
+            }
+        }
+        
+        //Plaatsen bezoekers
+        
+        
         //Creates the layout
         LogVenue(competition);
     }
-    
-    
-    
-    public static void Filter(Visitor visitor, DateTime Deadline, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
+
+    private static void FilterByHasAdults(VisitorGroup visitorGroup, List<Visitor> ToBeRemoved, VisitorContainer visitorContainer)
     {
-        if (visitor.RegisteredTime > Deadline)
+        foreach (var vistor in visitorGroup.GetVisitors())
+        {
+            ToBeRemoved.Add(vistor);
+        }
+
+        foreach (var visitor in ToBeRemoved)
+        {
+            // remove them from visitors that are allowed to enter
+            visitorGroup.RemoveVisitor(visitor);
+            visitorContainer.RejectVisitor(visitor, "Group contains no adults");
+        }
+    }
+
+
+    //Refactor: remove dependecy to competition
+    public static bool FilterRegistrationDeadline(Visitor visitor, Competition.Competition competition, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
+    {
+        if (visitor.RegisteredTime > competition.RegisterDeadline)
         {
             //Have not met the deadline, remove
             toBeRemoved.Add(visitor);
@@ -132,17 +167,17 @@ public class Program
             visitorContainer.RejectVisitor(visitor, "Registration was too late");
         }
 
-        // else
-        // {
-        //     if (!visitor.IsAnAdult(competitionDate))
-        //     {
-        //         toBeRemoved.Add(visitor);
-        //         visitorContainer.RejectVisitor(visitor, "Registration was too late");
-        //
-        //         hasAdults = true;
-        //     }
-        // }
-    }    
+        else 
+        {
+          if (visitor.IsAnAdult(competition.CompetitionDate))
+          {
+              return true;
+          }
+        }
+
+        return false;
+    }
+    
     
     
     
