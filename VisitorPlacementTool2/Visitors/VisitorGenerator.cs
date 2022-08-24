@@ -21,17 +21,18 @@ public class VisitorGenerator
         }
         var visitors = new List<Visitor>();
         
-        //Generate random date of birth
-        //Highly accurate dates are ouf of scope for this project, but this is a good start.
-        //Leap years are not included in this calculation, every value should give a valid and practical date.
-        
-        //Generate random date of registration
-        var date = new DateTime(2022, _generator.Next(1, 12), _generator.Next(1, 28));
         
         //Keep generating random names and ages until the amount of visitors is reached
         for (var i = 0; i < amount; i++)
         {
+            
+            //Generate random date of birth
+            //Highly accurate dates are ouf of scope for this project, but this is a good start.
+            //Leap years are not included in this calculation, every value should give a valid and practical date.
             var randomDateOfBirth = new DateTime(_generator.Next(1940, 2020), _generator.Next(1, 12), _generator.Next(1, 28));
+            
+            //Generate random date of registration
+            var date = new DateTime(2022, _generator.Next(1, 12), _generator.Next(1, 28));
 
             var visitor = new Visitor
             (

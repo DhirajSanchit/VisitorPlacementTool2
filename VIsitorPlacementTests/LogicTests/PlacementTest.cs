@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using VisitorPlacementTool2.Filter;
+using Microsoft.VisualStudio.TestTools.UnitTesting; 
 
 namespace VIsitorPlacementTests.LogicTests;
 

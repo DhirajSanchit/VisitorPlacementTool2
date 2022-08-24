@@ -58,7 +58,7 @@ public class AreaGenerator
         {
             //The index is divided by 26, because there are 26 letters in the alphabet
             //The remainder is added to 64 to get the correct letter because ASCII is used
-            var first = (char)(areaIndex / 26 + 64 );
+            var first = (char)(areaIndex / 26 -1 + 65 );
             
             //When a certain amount of areas is reached, a second letter is needed
             //The remainder is added to 64 to get the correct letter because ASCII is used

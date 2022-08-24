@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VisitorPlacementTool2.Track;
 using VisitorPlacementTool2.Visitors;
 
-namespace VisitorPlacementTests.ClassTests;
+namespace VIsitorPlacementTests.ClassTests;
 
 [TestClass]
 public class SeatTest

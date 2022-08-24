@@ -164,10 +164,12 @@ public class Program
             var numberOfMinors = group.AmountOfKids(competitionDate);
             foreach (var area in competition.Areas)
             {
-                //
+                //Check for each area if there is enough space for the iterated group
+                //And if there is enough space for the minors in the first row
                 if (area.AmountOfSeatsAvailable() >= group.GetVisitors().Count &&
-                    area.AmountOfAvailableSeatsInFirstRow() > numberOfMinors)
+                    area.AmountOfAvailableSeatsInFirstRow() >= numberOfMinors)
                 {
+                    //Keep track of placed minors and adults
                     var childPositions = new List<Coordinate>();
                     var adultPositions = new List<Coordinate>();
 
@@ -194,29 +196,36 @@ public class Program
 
             if (!placed)
             {
+                //All the groups that can't be placed for now are stored.
                 leftGroups.Add(group);
             }
         }
 
+        //Now check for the groups that couldn't be placed
         foreach (var visitorGroup in leftGroups)
         {
             foreach (var visitor in visitorGroup.GetVisitors())
             {
                 var placed = false;
+                //Iterate through the areas, check if theres a spot free and place the visitor
+                //Open for optimization
                 foreach (var area in competition.Areas)
                 {
+                    //Visitor was placed
                     if (placed)
                     {
+                        //Stop checking areas, go to the next visitor
                         break;
                     }
-
+                    
+                    //Check if there is space for the visitor on every row of the iterated area
                     foreach (var row in area.Rows)
                     {
                         if (placed)
                         {
                             break;
                         }
-
+                        //Check if there is a seat for the visitor in the row
                         foreach (var seat in row.Seats)
                         {
                             if (!seat.IsOccupied())
@@ -238,6 +247,7 @@ public class Program
         LogVenue(competition, (List<VisitorGroup>)groupContainer.GetGroups(), visitorContainer.rejectedVisitors);
     }
 
+    //Place an adult 
     private static Coordinate PlaceAdult(List<Coordinate> adultPositions, List<Coordinate> childPositions, Area area,
         Visitor visitor, DateTime competitionDate)
     {
@@ -250,9 +260,12 @@ public class Program
         
     }
 
+    
+    //Start checking if the adult can be placed 
     private static Coordinate PlaceFirstAdultWithChildren(List<Coordinate> childPositions,
         Area area, Visitor visitor)
     {
+        //Check for the possibilities of placement next to child:
         foreach (var childPosition in childPositions)
         {
             //Check seat to the left
@@ -264,6 +277,7 @@ public class Program
             }
 
             //Check seat behind
+            //Math Min/Max used to prevent out of bounds exception
             if (!area.Rows[Math.Min(childPosition.RowNr + 1, area.Rows.Count - 1)].Seats[childPosition.SeatNr]
                     .IsOccupied())
             {
@@ -283,6 +297,8 @@ public class Program
             }
 
             //Check seat in front
+            //Math max used to prevent out of bounds exception, number between -1 and 0 is always 0
+            //If childposition.Rownumber = 0
             if (!area.Rows[Math.Max(childPosition.RowNr - 1, 0)].Seats[childPosition.SeatNr]
                     .IsOccupied())
             {

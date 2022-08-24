@@ -91,6 +91,9 @@ namespace VisitorPlacementTool2.Competition
             Areas = sortedAreas;
         }
 
+        //Method sorts the areas based by the alphabetical area code:
+        //For example A, B, C, D, E...
+        //Continued by AA, AB, AC...
         public void SortAreasByName()
         {
             var shortNameAreas = new List<Area>();
@@ -114,10 +117,6 @@ namespace VisitorPlacementTool2.Competition
 
             Areas = shortNameAreas;
             Areas.AddRange(mediumNameAreas);
-
-
         }
-        
-         
     }
 }

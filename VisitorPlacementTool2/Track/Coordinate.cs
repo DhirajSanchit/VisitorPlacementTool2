@@ -1,4 +1,4 @@
-namespace VisitorPlacementTool2;
+namespace VisitorPlacementTool2.Track;
 
 public class Coordinate
 {
