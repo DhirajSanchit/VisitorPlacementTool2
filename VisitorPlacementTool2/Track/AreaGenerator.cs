@@ -52,28 +52,25 @@ public class AreaGenerator
     
     //Generates a name for the area based on the iteration which should be Alphabetical Letters 
     //For example 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'
-    public static string GenerateName(int areaIndex)
+    public string GenerateName(int areaIndex)
     {
-        //Starts with 1, because the first area should be 'A'
-        areaIndex += 1;
-        
-        if (areaIndex > 26)
+        if (areaIndex > 25)
         {
             //The index is divided by 26, because there are 26 letters in the alphabet
             //The remainder is added to 64 to get the correct letter because ASCII is used
-            var first = (char)( areaIndex / 26 + 64 );
+            var first = (char)(areaIndex / 26 + 64 );
             
             //When a certain amount of areas is reached, a second letter is needed
             //The remainder is added to 64 to get the correct letter because ASCII is used
             //For example: 27 = 'AA', 28 = 'AB', 29 = 'AC', 30 = 'AD', 31 = 'AE', 32 = 'AF', 33 = 'AG', 34 = 'AH',
             //35 = 'AI', 36 = 'AJ'
-            var second = (char)( areaIndex % 26 + 64 );
+            var second = (char)(areaIndex % 26 + 65 );
             return $"{first}{second}";
         }
         else
         {
             //Ceates an ASCII character from the index for the first 26 areas with areacode 'A'
-            var first = (char)( areaIndex % 26 + 64 );
+            var first = (char)(areaIndex % 26 + 65 );
             return first.ToString();
         }
     }

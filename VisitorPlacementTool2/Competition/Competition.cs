@@ -90,6 +90,33 @@ namespace VisitorPlacementTool2.Competition
             //Save the sorted areas
             Areas = sortedAreas;
         }
+
+        public void SortAreasByName()
+        {
+            var shortNameAreas = new List<Area>();
+            var mediumNameAreas = new List<Area>();
+            
+            foreach (var area in Areas)
+            {
+                if (area.Name.Length == 1)
+                {
+                    shortNameAreas.Add(area);
+                }
+                else
+                {
+                    mediumNameAreas.Add(area);
+                }
+            }
+            
+            //sort alphabetically by name
+            shortNameAreas.Sort((x, y) => x.Name.CompareTo(y.Name));
+            mediumNameAreas.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+            Areas = shortNameAreas;
+            Areas.AddRange(mediumNameAreas);
+
+
+        }
         
          
     }

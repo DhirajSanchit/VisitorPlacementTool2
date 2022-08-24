@@ -231,6 +231,9 @@ public class Program
             }
         }
 
+        //put areas back in old order
+        competition.SortAreasByName();
+        
         //Creates the layout
         LogVenue(competition, (List<VisitorGroup>)groupContainer.GetGroups(), visitorContainer.rejectedVisitors);
     }
@@ -651,6 +654,7 @@ public class Program
         //Layout has to be generated based on with and length
         foreach (var area in competition.Areas)
         {
+            Console.WriteLine($"Area {area.Name}");
             //Calculate the amount of rows
             var rowsCount = area.Rows.Count;
 

@@ -38,4 +38,20 @@ public class AreaGeneratorTest
         //assert
         Assert.Fail();
     }
+    
+    [TestMethod]
+    public void GenerateName()
+    {
+        //arrange
+        var areaGenerator = new AreaGenerator();
+        //act
+        for (int i = 0; i < 100; i++)
+        {
+            var result = areaGenerator.GenerateName(i);
+            //assert
+            Console.WriteLine(result);
+        }
+        //assert
+        // Assert.Fail();
+    }
 }
