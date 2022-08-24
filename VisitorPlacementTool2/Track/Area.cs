@@ -16,7 +16,37 @@ public class Area
         Rows = new();
     }
 
-    
+    public int AmountOfSeatsAvailable()
+    {
+        int availableSeats = 0;
+
+        foreach (var row in Rows)
+        {
+            foreach (var seat in row.Seats)
+            {
+                if (!seat.IsOccupied())
+                {
+                    availableSeats++;
+                }
+            }
+        }
+        return availableSeats;
+    }
+
+    public int AmountOfAvailableSeatsInFirstRow()
+    {   
+        int availableSeats = 0;
+        foreach (var seat in Rows[0].Seats)
+        {
+            if (!seat.IsOccupied())
+            {
+                availableSeats++;
+            }
+        }
+        return availableSeats;
+    }
+
+
     //Constructor that creates a rectangular area with the given number of rows and columns
     public Area(string areaName, int rowAmount, int rowLength)
     {

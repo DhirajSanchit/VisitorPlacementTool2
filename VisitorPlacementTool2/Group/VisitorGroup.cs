@@ -8,7 +8,7 @@ namespace VisitorPlacementTool2.Group;
 public class VisitorGroup
 {
     private List<Visitor> Visitors;
-    private int Id; 
+    private int Id;
     
     //Constructor
     public VisitorGroup(List<Visitor> visitors)

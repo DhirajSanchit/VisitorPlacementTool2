@@ -55,8 +55,8 @@ public class GroupContainer
         // Groups.Sort((x, y) => x.GetId().CompareTo(y.GetId()));
         
         //Sort the groups by the amount of kids in a group
-        Groups.Sort((x, y) => x.AmountOfKids(competitionDate).CompareTo(y.AmountOfKids(competitionDate)));
-
+        Groups.Sort((x, y) => y.AmountOfKids(competitionDate).CompareTo(x.AmountOfKids(competitionDate)));
+    
         //Categorize the areas based on the seatnumber
         var sizeCategory = new List<VisitorGroup>();
             

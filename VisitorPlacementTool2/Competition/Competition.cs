@@ -54,7 +54,7 @@ namespace VisitorPlacementTool2.Competition
         
         {
             //Sort the areas based on the total area size
-            Areas.Sort((x, y) => x.GetNumberOfSeats().CompareTo(y.GetNumberOfSeats()));
+            Areas.Sort((x, y) => y.GetNumberOfSeats().CompareTo(x.GetNumberOfSeats()));
             
             //Categorize the areas based on the seatnumber
             var sizeCategory = new List<Area>();
@@ -71,7 +71,7 @@ namespace VisitorPlacementTool2.Competition
                 {
                     
                     //Sort the list by rowlength and save it in a new list.
-                    sizeCategory.Sort((x, y) => x.Rows[0].Seats.Count.CompareTo(y.Rows[0].Seats.Count));
+                    sizeCategory.Sort((x, y) => y.Rows[0].Seats.Count.CompareTo(x.Rows[0].Seats.Count));
                     sortedAreas.AddRange(sizeCategory);
                     
                     //Empty the list to start for the new size category
