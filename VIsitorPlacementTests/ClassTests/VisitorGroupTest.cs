@@ -39,4 +39,41 @@ public class VisitorGroupTest
             Assert.AreEqual(visitors[i].DateOfBirth, results[i].DateOfBirth);
         }
     }
+    
+    [TestMethod]
+    public void VisitorGroupWithAtLeast1Minor()
+    {
+        //arrange
+        var visitors = new List<Visitor>();
+        visitors.Add(new Visitor("Visitor1", new DateTime(2015,6,9), new DateTime(2022,12,1)));
+        visitors.Add(new Visitor("Visitor2", new DateTime(2001,11,13), new DateTime(2022,12,1)));
+        visitors.Add(new Visitor("Visitor3", new DateTime(1996, 12, 4), new DateTime(2022,12,1)));
+        var visitorGroup = new VisitorGroup(visitors);
+        var eventdate = new DateTime(2022, 12, 12);
+        
+        //act
+        var result = visitorGroup.AmountOfKids(eventdate);
+        
+        //assert
+        Assert.IsTrue(result >= 1);
+    }
+
+    [TestMethod]
+    public void HasAdults()
+    {
+        //arrange
+        var visitors = new List<Visitor>();
+        visitors.Add(new Visitor("Visitor1", new DateTime(2015,6,9), new DateTime(2022,12,1)));
+        visitors.Add(new Visitor("Visitor2", new DateTime(2001,11,13), new DateTime(2022,12,1)));
+        visitors.Add(new Visitor("Visitor3", new DateTime(1996, 12, 4), new DateTime(2022,12,1)));
+        var visitorGroup = new VisitorGroup(visitors);
+        var eventdate = new DateTime(2022, 12, 12);
+        
+        //act
+        var result = visitorGroup.HasAdults(eventdate);
+        
+        //assert
+        Assert.IsTrue(result, "No adults in this group");
+    }
+    
 }
