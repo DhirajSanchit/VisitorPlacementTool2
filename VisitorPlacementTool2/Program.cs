@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using VisitorPlacementTool2.Competition;
 using VisitorPlacementTool2.Containers;
@@ -54,12 +55,7 @@ public class Program
 
             //Adults have to be present
             var hasAdults = false;
-
-            //Check if the visitors in the group who have registered on time
-            //TODO: FILTER
-            //TODO: Extract method date filter, adult filter
-
-
+ 
             foreach (var visitor in visitorGroup.GetVisitors())
             {
                 if (FilterRegistrationDeadline(visitor, competition, ToBeRemoved, visitorContainer))
@@ -149,12 +145,201 @@ public class Program
                 visitors.Remove(visitor);
             }
         }
-
+        
+        
         List<VisitorGroup> sortedGroups = new();
 
-        //Loop through all the groups
+        //Sort all areas
         competition.SortAreas();
+        
+        //sorts all the available groups
         groupContainer.SortGroups(competitionDate);
+
+        //Place the groups in the areas
+       
+        //Select minors from the groups and store them ina list
+        List<Visitor> minors = new();
+        foreach (var group in groupContainer.GetGroups())
+        {
+            var visitors = group.GetVisitors();
+            visitors.OrderBy(x => x.DateOfBirth);
+
+            var numberOfMinors = group.AmountOfKids(competitionDate);
+            foreach (var area in competition.Areas)
+            {
+                
+                //
+                if (area.GetNumberOfSeats() >= group.GetVisitors().Count && area.AmountOfAvailableSeatsInFirstRow()  > numberOfMinors)
+                {
+                    int index = 0;
+                    var step = "place children";
+                    var hasLastStepExecuted = false;
+                    var lastPlacedSeat = 0;
+                    
+
+                    var childPositions = new List<int>();
+                    
+                    //plaat groep in area
+                    foreach (var visitor in visitors)
+                    {
+                        //Check for alle minors in de groep
+                        if (!visitor.IsAnAdult(competitionDate))
+                        {
+
+                            var seatnumber = 0;
+                            //Kijk of de eerste rij vrij is en plaats als het kan
+                            foreach (var seat in area.Rows[0].Seats)
+                            {
+                                if (!seat.IsOccupied())
+                                {
+                                    seat.PlaceVisitor(visitor);
+                                    childPositions.Add(seatnumber);
+                                    break;
+                                }
+                                seatnumber++;
+                            } 
+                        }
+                        
+                        //Visitor is volwassen
+                        else
+                        {
+                            if (step =="place children")
+                            { 
+                                if (childPositions.Count == 0)
+                                {
+                                    //do something
+                                }
+                                
+                                else
+                                { 
+                                    step = "place attendant behind child";  
+                                }
+                            }
+                            
+                            
+                            if (step == "place attendant behind child")
+                            { 
+                                var canPlaceAttendant = false;
+                                //Can adults be placed behind children
+                                foreach (var position in childPositions)
+                                {
+                                    if (!area.Rows[1].Seats[position].IsOccupied())
+                                    {
+                                        canPlaceAttendant = true;
+                                        
+                                    }
+                                }
+                                
+                                if (!canPlaceAttendant && hasLastStepExecuted)
+                                {
+                                    //Place attendant behind child
+                                   step = "fill last row";
+                                   hasLastStepExecuted = false;
+                                   
+                                } else if(!canPlaceAttendant && !hasLastStepExecuted)
+                                {
+                                    // plaats volwassenen rechts;
+                                    step = "place attendant to right of child";
+                                }
+                            }
+
+                            if (step == "place attendant to the right of child")
+                            {
+                                foreach (var seat in area.Rows[0].Seats)
+                                {
+                                    if (seat.IsOccupied())
+                                    {
+                                        //do something
+                                        if (!area.Rows[1].Seats[area.Rows[0].Seats.IndexOf(seat)].IsOccupied())
+                                        {
+                                            //do something
+                                            step = "place attendant behind last person in first row";
+                                            break;
+                                        }  
+                                    }
+                                    else
+                                    {
+                                        //do something
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (step == "place attendant behind last person in first row")
+                            {
+                                var lastTakenSeat = 0;
+                                foreach (var seat in area.Rows[1].Seats)
+                                {
+                                    if (seat.IsOccupied())
+                                    {
+                                        lastTakenSeat = area.Rows[1].Seats.IndexOf(seat);
+                                    }
+                                }
+                                
+                                //if seat left to last taken seat is free, place attendant there
+                                if (!area.Rows[1].Seats[lastTakenSeat - 1].IsOccupied())
+                                {
+                                    step = "place attendant to the left of last attendant second row";
+                                }
+                                //if seat behind last taken seat is free, place attendant there
+                                else if (!area.Rows[2].Seats[lastTakenSeat + 1].IsOccupied())
+                                {
+                                    step = "place attendant to the right of last attendant second row";
+                                } 
+                                
+                            }
+
+                            switch (step)
+                            {
+                                case "place attendant behind child":
+                                    //Plaats de volwassen achter de kinderen
+                                    foreach (var childPosition in childPositions)
+                                    {
+                                        var seat = area.Rows[1].Seats[childPosition];
+                                        if (!seat.IsOccupied())
+                                        {
+                                            seat.PlaceVisitor(visitor);
+                                            hasLastStepExecuted = true;
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "place attendant to right of child":
+                                    //Plaats de volwassen rechts van de kinderen
+                                     area.Rows[0].Seats[childPositions.Last() + 1].PlaceVisitor(visitor);
+                                    break;
+                                case"place attendant behind last person in first row":
+                                    var lastTakenSeat = 0;
+                                    foreach (var seat in area.Rows[0].Seats)
+                                    {
+                                        if (seat.IsOccupied())
+                                        {
+                                            lastTakenSeat = area.Rows[0].Seats.IndexOf(seat);
+                                        }
+                                    }
+                                    area.Rows[1].Seats[lastTakenSeat].PlaceVisitor(visitor);
+                                    break;
+                            }
+                        }
+                    }
+                    
+                    break;
+                } 
+                
+                 
+            } 
+        }
+        
+        
+
+        /// <summary>
+        /// per groep checken :
+        /// kinderen eerst plaatsen op de eerste rij.
+        /// Volwassenen erachter
+        /// 
+        /// Volwassenen op de rij erachter plaatsen 
+        /// 
+
 
         //Creates the layout
         LogVenue(competition);
