@@ -15,25 +15,25 @@ public class Program
     public static void Main(string[] args)
     {
         //Code below creates an event based by the requirements of the user.
-        
+
         //Max visitors based on permit
         var maxVisitors = MaxVisitors();
-        
+
         //Date the event is based on
         var competitionDate = CompetitionDate();
-        
+
         //Deadline users have had to be registered by;
         var registerDeadline = RegisterDeadline(competitionDate);
-        
+
         //Its possible that more visitors want have registered than the permit allows
         var actualVisitors = ActualVisitors();
-        
+
         //Generaates groups
         GroupGenerator groupGenerator = new GroupGenerator();
 
         //Contains the rejected visitors
         VisitorContainer visitorContainer = new();
-        
+
         //Container that saves the generated groups
         GroupContainer groupContainer = new GroupContainer
         (
@@ -45,16 +45,16 @@ public class Program
         var competition = new Competition.Competition(competitionDate, registerDeadline, maxVisitors);
 
         //Filter visitorgroups on register date and composition
-        
+        var removedGroups = new List<VisitorGroup>();
         //TODO: Wrap in functions
         foreach (var visitorGroup in groupContainer.GetGroups())
-        {   
+        {
             //Prepare list for visitors to be rejected and removed
             List<Visitor> ToBeRemoved = new();
 
             //Adults have to be present
             var hasAdults = false;
-            
+
             //Check if the visitors in the group who have registered on time
             //TODO: FILTER
             //TODO: Extract method date filter, adult filter
@@ -70,33 +70,42 @@ public class Program
                 //Now check on the visitor-groups that remain if they contain adults
                 //Check for each visitor group that remains if there are adults in it
                 //Do they not contain adults? Add them to the ToBeRemoved List with the reason of rejection
-            
+
                 //Compare the visitorslists against ToBeRemoved, if they are in ToBeRemoved, remove them from the visitorgroup
-            
+
                 //Remove the empty groups from the groupcontainer
                 //Place the remaining groups.
-            
+
                 //TODO: Extract method adult filter
                 // foreach (var visitor in visitorGroup.GetVisitors())
             }
-            
+
             //Collected all the visitors that have been filtered and 
-            actualVisitors-= ToBeRemoved.Count;
-            
+            actualVisitors -= ToBeRemoved.Count;
+
             foreach (var visitor in ToBeRemoved)
             {
                 // remove them from visitors that are allowed to enter
                 visitorGroup.RemoveVisitor(visitor);
             }
-            
+
             if (!hasAdults)
             {
                 ToBeRemoved.Clear();
-                FilterByHasAdults(visitorGroup, ToBeRemoved, visitorContainer); 
+                FilterByHasAdults(visitorGroup, ToBeRemoved, visitorContainer);
                 actualVisitors -= ToBeRemoved.Count;
+                removedGroups.Add(visitorGroup);
+            }
+            else if (visitorGroup.GetVisitors().Count == 0)
+            {
+                removedGroups.Add(visitorGroup);
             }
         }
-        
+
+        //Verwijder de lege groepen uit de groepcontainer
+        removedGroups.ForEach(group => groupContainer.RemoveGroup(group));
+
+
         //Overgebleven bezoekers aan het einde weigeren op op capactiteit.
         if (actualVisitors > competition.GetNumberOfSeats())
         {
@@ -104,35 +113,45 @@ public class Program
             foreach (var group in groupContainer.GetGroups())
             {
                 foreach (var visitor in group.GetVisitors())
-                { 
+                {
                     visitors.Add(visitor);
                 }
-            } 
+            }
+
             visitors.Sort((x, y) => x.RegisteredTime.CompareTo(y.RegisteredTime));
-            
+
             for (int i = 0; visitors.Count > competition.GetNumberOfSeats(); i++)
-            { 
+            {
                 //return last visitor in list
-                var visitor = visitors[visitors.Count-1];
+                var visitor = visitors[visitors.Count - 1];
                 visitorContainer.RejectVisitor(visitor, "Overcapacity");
 
                 var group = groupContainer.GetGroupById(visitor.GroupId);
                 group.RemoveVisitor(visitor);
 
                 var capactiyRemovedVisitors = new List<Visitor>();
-                FilterByHasAdults(group, capactiyRemovedVisitors, visitorContainer);
-                
+                if (!group.HasAdults(competitionDate))
+                {
+                    FilterByHasAdults(group, capactiyRemovedVisitors, visitorContainer);
+                    groupContainer.RemoveGroup(group);
+                }
+                else if (group.GetVisitors().Count == 0)
+                {
+                    groupContainer.RemoveGroup(group);
+                }
+
                 foreach (var visitorToBeRemoved in capactiyRemovedVisitors)
                 {
                     visitors.Remove(visitorToBeRemoved);
                 }
+
                 //remove visitor from list
                 visitors.Remove(visitor);
             }
         }
-        
-        List<VisitorGroup> sortedGroups = new(); 
-        
+
+        List<VisitorGroup> sortedGroups = new();
+
         //Loop through all the groups
         competition.SortAreas();
         groupContainer.SortGroups(competitionDate);
@@ -141,9 +160,9 @@ public class Program
         LogVenue(competition);
     }
 
-    
 
-    private static void FilterByHasAdults(VisitorGroup visitorGroup, List<Visitor> ToBeRemoved, VisitorContainer visitorContainer)
+    private static void FilterByHasAdults(VisitorGroup visitorGroup, List<Visitor> ToBeRemoved,
+        VisitorContainer visitorContainer)
     {
         foreach (var vistor in visitorGroup.GetVisitors())
         {
@@ -160,23 +179,24 @@ public class Program
 
 
     //Refactor: remove dependecy to competition
-    public static bool FilterRegistrationDeadline(Visitor visitor, Competition.Competition competition, List<Visitor> toBeRemoved ,VisitorContainer visitorContainer)
+    public static bool FilterRegistrationDeadline(Visitor visitor, Competition.Competition competition,
+        List<Visitor> toBeRemoved, VisitorContainer visitorContainer)
     {
         if (visitor.RegisteredTime > competition.RegisterDeadline)
         {
             //Have not met the deadline, remove
             toBeRemoved.Add(visitor);
-                    
+
             //Save the the removed visitors with reason of rejection
             visitorContainer.RejectVisitor(visitor, "Registration was too late");
         }
 
-        else 
+        else
         {
-          if (visitor.IsAnAdult(competition.CompetitionDate))
-          {
-              return true;
-          }
+            if (visitor.IsAnAdult(competition.CompetitionDate))
+            {
+                return true;
+            }
         }
 
         return false;
@@ -258,7 +278,7 @@ public class Program
         {
             //Calculate the amount of rows
             var rowsCount = area.Rows.Count;
-            
+
             //calculate the row width based on the amount of seats
             var rowWidth = area.Rows[0].Seats.Count;
 

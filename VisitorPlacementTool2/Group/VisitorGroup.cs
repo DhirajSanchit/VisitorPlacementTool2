@@ -54,4 +54,15 @@ public class VisitorGroup
         Visitors.Remove(visitor);
     }
 
+    public bool HasAdults(DateTime eventDate)
+    {
+        foreach (var visitor in Visitors)
+        {
+            if (visitor.IsAnAdult(eventDate))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
