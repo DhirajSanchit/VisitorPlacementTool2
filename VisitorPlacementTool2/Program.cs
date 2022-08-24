@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using VisitorPlacementTool2.Competition;
 using VisitorPlacementTool2.Containers;
 using VisitorPlacementTool2.Group;
+using VisitorPlacementTool2.Track;
 using VisitorPlacementTool2.Visitors;
 
 
@@ -94,9 +95,7 @@ public class Program
                 FilterByHasAdults(visitorGroup, ToBeRemoved, visitorContainer); 
                 actualVisitors -= ToBeRemoved.Count;
             }
-
         }
-
         
         //Overgebleven bezoekers aan het einde weigeren op op capactiteit.
         if (actualVisitors > competition.GetNumberOfSeats())
@@ -132,12 +131,17 @@ public class Program
             }
         }
         
-        //Plaatsen bezoekers
+        List<VisitorGroup> sortedGroups = new(); 
         
-        
+        //Loop through all the groups
+        competition.SortAreas();
+        groupContainer.SortGroups(competitionDate);
+
         //Creates the layout
         LogVenue(competition);
     }
+
+    
 
     private static void FilterByHasAdults(VisitorGroup visitorGroup, List<Visitor> ToBeRemoved, VisitorContainer visitorContainer)
     {
@@ -177,12 +181,7 @@ public class Program
 
         return false;
     }
-    
-    
-    
-    
-    
-    
+
     //Asks for the Actual visitors that have shown up
     private static int ActualVisitors()
     {

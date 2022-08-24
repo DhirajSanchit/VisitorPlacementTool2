@@ -48,7 +48,51 @@ namespace VisitorPlacementTool2.Competition
             return count;
         }
 
+        
+        //This method sorts the areas by the number of seats and categorizes them by seatnumber.
+        public void SortAreas()
+        
+        {
+            //Sort the areas based on the total area size
+            Areas.Sort((x, y) => x.GetNumberOfSeats().CompareTo(y.GetNumberOfSeats()));
+            
+            //Categorize the areas based on the seatnumber
+            var sizeCategory = new List<Area>();
+            
+            //Compare the areas based on the seat Amount and save them in a list.
+            var lastSize = Areas[0].GetNumberOfSeats();
+            List<Area> sortedAreas = new();
 
+            
+            foreach (var area in Areas)
+            {
+                //If the area size is not the same as the last size,
+                if (area.GetNumberOfSeats() != lastSize)
+                {
+                    
+                    //Sort the list by rowlength and save it in a new list.
+                    sizeCategory.Sort((x, y) => x.Rows[0].Seats.Count.CompareTo(y.Rows[0].Seats.Count));
+                    sortedAreas.AddRange(sizeCategory);
+                    
+                    //Empty the list to start for the new size category
+                    sizeCategory = new();
+                    lastSize = area.GetNumberOfSeats();
+                }
+
+                //Add the area to the list.
+                sizeCategory.Add(area);
+            }
+            
+            //Sort the last category and save it in a new list for the last size category.
+            sizeCategory.Sort((x, y) => x.Rows[0].Seats.Count.CompareTo(y.Rows[0].Seats.Count));
+            sortedAreas.AddRange(sizeCategory);
+            
+            //Save the sorted areas
+            Areas = sortedAreas;
+        }
+        
+        
+        
         //Methods below are from previous attempts of the project.
         //Saved for reference
         //Todo: Remove code below when not needed anymore.

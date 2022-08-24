@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using VisitorPlacementTool2.Visitors;
 
@@ -32,7 +33,20 @@ public class VisitorGroup
     {
         Id = id;
     }
-    
+
+    //Calculates the total number of kids in the group based on the competition date
+    public int AmountOfKids(DateTime competitionDate)
+    {
+        int amountOfKids = 0;
+        foreach (Visitor visitor in Visitors)
+        {
+            if (!visitor.IsAnAdult(competitionDate))
+            {
+                amountOfKids++;
+            }
+        }
+        return amountOfKids;
+    }
     
     //Removes a visitor from this group
     public void RemoveVisitor(Visitor visitor)
