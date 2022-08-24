@@ -310,6 +310,8 @@ public class Program
         throw new Exception("No place found for adult");
     }
 
+    
+    //First adult is already placed, now place the rest of adults or the group contains no minors
     private static Coordinate PlaceOtherAdult(List<Coordinate> adultPositions, Area area, Visitor visitor, DateTime competitionDate)
     {
         var seatNr = 0;
@@ -393,14 +395,20 @@ public class Program
                     break;
             }
         }
+        
+        //For every adult that isn't the first adult in the group.
         else
-        {
+        {   
+            //Checks for the number of rows in an area
             switch (area.Rows.Count)
-            {
+            {   
+                //If there is only one row
+                //Try to place right of the last adult
                 case 1:
                     area.Rows[0].Seats[adultPositions.Last().SeatNr + 1].PlaceVisitor(visitor);
                     return new Coordinate(0, adultPositions.Last().SeatNr + 1);
                 case 2:
+                    //Check for a seat in 2nd row 
                     foreach (var seat in area.Rows[1].Seats)
                     {
                         if (!seat.IsOccupied())
@@ -410,8 +418,9 @@ public class Program
                         }
 
                         seatNr++;
-                    }
-
+                    }   
+                    
+                    //No place in the 2nd frow, check the first row, from right to left
                     seatNr = area.Rows[0].Seats.Count - 1;
                     for (; seatNr >= 0; seatNr--)
                     {
@@ -424,6 +433,8 @@ public class Program
 
                     break;
                 case 3:
+                    
+                    //For every previous placed adult check for a seat relative to them
                     for (int i = adultPositions.Count - 1; i >= 0; i--)
                     {
                         //Check seat to the left
@@ -435,6 +446,7 @@ public class Program
                             return new Coordinate(adultPositions[i].RowNr, adultPositions[i].SeatNr - 1);
                         }
 
+                        //
                         //if not last row
                         if (adultPositions[i].RowNr != 2)
                         {
@@ -448,7 +460,7 @@ public class Program
                             }
 
                             //if not first row
-                            //Check seat behind to the right
+                            //Check seat behind to the right, diagonally
                             if (adultPositions[i].RowNr != 0)
                             {
                                 if (!area.Rows[Math.Min(adultPositions[i].RowNr + 1, 2)]
