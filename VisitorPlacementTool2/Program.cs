@@ -183,7 +183,7 @@ public class Program
                         //Visitor is volwassen
                         else
                         {
-                            adultPositions.Add(PlaceAdult(adultPositions, childPositions, area, visitor));
+                            adultPositions.Add(PlaceAdult(adultPositions, childPositions, area, visitor, competitionDate));
                         }
                     }
 
@@ -236,17 +236,15 @@ public class Program
     }
 
     private static Coordinate PlaceAdult(List<Coordinate> adultPositions, List<Coordinate> childPositions, Area area,
-        Visitor visitor)
+        Visitor visitor, DateTime competitionDate)
     {
         //if group has children
         if (childPositions.Count > 0 && adultPositions.Count == 0)
         {
             return PlaceFirstAdultWithChildren(childPositions, area, visitor);
         }
-        else
-        {
-            return PlaceAdult(adultPositions, area, visitor);
-        }
+        return PlaceOtherAdult(adultPositions, area, visitor, competitionDate);
+        
     }
 
     private static Coordinate PlaceFirstAdultWithChildren(List<Coordinate> childPositions,
@@ -293,7 +291,7 @@ public class Program
         throw new Exception("No place found for adult");
     }
 
-    private static Coordinate PlaceAdult(List<Coordinate> adultPositions, Area area, Visitor visitor)
+    private static Coordinate PlaceOtherAdult(List<Coordinate> adultPositions, Area area, Visitor visitor, DateTime competitionDate)
     {
         var seatNr = 0;
         if (adultPositions.Count == 0)
@@ -478,34 +476,22 @@ public class Program
                     break;
             }
         }
-
-        Console.WriteLine("No seat found");
-        var rowsCount = area.Rows.Count;
-
-        //calculate the row width based on the amount of seats
-        var rowWidth = area.Rows[0].Seats.Count;
-
-        //prints out the layout to the console in nested for loops for a rectangular layout
-        for (var i = 0; i < rowWidth; i++)
+        
+        //if all else fails try and still place the visitor
+        foreach (var row in area.Rows)
         {
-            for (var j = 0; j < rowsCount; j++)
+            foreach (var seat in row.Seats)
             {
-                if (area.Rows[j].Seats[i].IsOccupied())
+                if (!seat.IsOccupied())
                 {
-                    //Prints out the placed visitors with the area and seatcode and the occupant.
-                    Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}]");
-                }
-                else
-                {
-                    Console.Write("[ ]");
+                    seat.PlaceVisitor(visitor);
+                    return new Coordinate(row.Number, seat.Number);
                 }
             }
-
-            Console.Write("\r\n");
         }
 
 
-        throw new Exception("No seat found");
+        throw new Exception($"No seat found for {visitor.GroupId}");
     }
 
     private static Coordinate placeChild(Area area, Visitor visitor)
@@ -523,31 +509,28 @@ public class Program
             seatnumber++;
         }
 
-        Console.WriteLine("No seat found");
-        var rowsCount = area.Rows.Count;
-
-        //calculate the row width based on the amount of seats
-        var rowWidth = area.Rows[0].Seats.Count;
-
-        //prints out the layout to the console in nested for loops for a rectangular layout
-        for (var i = 0; i < rowWidth; i++)
+        foreach (var seat in area.Rows[1].Seats)
         {
-            for (var j = 0; j < rowsCount; j++)
+            if (!seat.IsOccupied())
             {
-                if (area.Rows[j].Seats[i].IsOccupied())
-                {
-                    //Prints out the placed visitors with the area and seatcode and the occupant.
-                    Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}]");
-                }
-                else
-                {
-                    Console.Write("[ ]");
-                }
+                seat.PlaceVisitor(visitor);
+                return new Coordinate(1, seatnumber);
             }
 
-            Console.Write("\r\n");
+            seatnumber++;
         }
+     
+        foreach (var seat in area.Rows[2].Seats)
+        {
+            if (!seat.IsOccupied())
+            {
+                seat.PlaceVisitor(visitor);
+                return new Coordinate(2, seatnumber);
+            }
 
+            seatnumber++;
+        }
+        
         throw new Exception("No seat found");
     }
 
@@ -681,8 +664,13 @@ public class Program
                 {
                     if (area.Rows[j].Seats[i].IsOccupied())
                     {
+                        var adultStatus = "C";
+                        if (area.Rows[j].Seats[i].Visitor.IsAnAdult(competition.CompetitionDate))
+                        {
+                            adultStatus = "A";
+                        }
                         //Prints out the placed visitors with the area and seatcode and the occupant.
-                        Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}]");
+                        Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}-{adultStatus}]");
                     }
                     else
                     {
