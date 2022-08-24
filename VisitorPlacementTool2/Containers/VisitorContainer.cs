@@ -11,7 +11,7 @@ namespace VisitorPlacementTool2.Containers;
 public class VisitorContainer
 {
     //Visitor list that stores visitors which are rejected with the reason.
-    private List<Visitor> rejectedVisitors;
+    public List<Visitor> rejectedVisitors;
 
     public VisitorContainer()
     {

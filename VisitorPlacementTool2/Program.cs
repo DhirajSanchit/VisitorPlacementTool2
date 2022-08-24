@@ -55,7 +55,7 @@ public class Program
 
             //Adults have to be present
             var hasAdults = false;
- 
+
             foreach (var visitor in visitorGroup.GetVisitors())
             {
                 if (FilterRegistrationDeadline(visitor, competition, ToBeRemoved, visitorContainer))
@@ -119,7 +119,7 @@ public class Program
             for (int i = 0; visitors.Count > competition.GetNumberOfSeats(); i++)
             {
                 //return last visitor in list
-                var visitor = visitors[visitors.Count - 1];
+                var visitor = visitors[^1];
                 visitorContainer.RejectVisitor(visitor, "Overcapacity");
 
                 var group = groupContainer.GetGroupById(visitor.GroupId);
@@ -145,204 +145,410 @@ public class Program
                 visitors.Remove(visitor);
             }
         }
-        
-        
-        List<VisitorGroup> sortedGroups = new();
+
 
         //Sort all areas
         competition.SortAreas();
-        
+
         //sorts all the available groups
         groupContainer.SortGroups(competitionDate);
-
+        var leftGroups = new List<VisitorGroup>();
         //Place the groups in the areas
-       
+
         //Select minors from the groups and store them ina list
-        List<Visitor> minors = new();
         foreach (var group in groupContainer.GetGroups())
         {
             var visitors = group.GetVisitors();
             visitors.OrderBy(x => x.DateOfBirth);
-
+            var placed = false;
             var numberOfMinors = group.AmountOfKids(competitionDate);
             foreach (var area in competition.Areas)
             {
-                
                 //
-                if (area.GetNumberOfSeats() >= group.GetVisitors().Count && area.AmountOfAvailableSeatsInFirstRow()  > numberOfMinors)
+                if (area.AmountOfSeatsAvailable() >= group.GetVisitors().Count &&
+                    area.AmountOfAvailableSeatsInFirstRow() > numberOfMinors)
                 {
-                    int index = 0;
-                    var step = "place children";
-                    var hasLastStepExecuted = false;
-                    var lastPlacedSeat = 0;
-                    
+                    var childPositions = new List<Coordinate>();
+                    var adultPositions = new List<Coordinate>();
 
-                    var childPositions = new List<int>();
-                    
                     //plaat groep in area
                     foreach (var visitor in visitors)
                     {
                         //Check for alle minors in de groep
                         if (!visitor.IsAnAdult(competitionDate))
                         {
-
-                            var seatnumber = 0;
-                            //Kijk of de eerste rij vrij is en plaats als het kan
-                            foreach (var seat in area.Rows[0].Seats)
-                            {
-                                if (!seat.IsOccupied())
-                                {
-                                    seat.PlaceVisitor(visitor);
-                                    childPositions.Add(seatnumber);
-                                    break;
-                                }
-                                seatnumber++;
-                            } 
+                            childPositions.Add(placeChild(area, visitor));
                         }
-                        
+
                         //Visitor is volwassen
                         else
                         {
-                            if (step =="place children")
-                            { 
-                                if (childPositions.Count == 0)
-                                {
-                                    //do something
-                                }
-                                
-                                else
-                                { 
-                                    step = "place attendant behind child";  
-                                }
-                            }
-                            
-                            
-                            if (step == "place attendant behind child")
-                            { 
-                                var canPlaceAttendant = false;
-                                //Can adults be placed behind children
-                                foreach (var position in childPositions)
-                                {
-                                    if (!area.Rows[1].Seats[position].IsOccupied())
-                                    {
-                                        canPlaceAttendant = true;
-                                        
-                                    }
-                                }
-                                
-                                if (!canPlaceAttendant && hasLastStepExecuted)
-                                {
-                                    //Place attendant behind child
-                                   step = "fill last row";
-                                   hasLastStepExecuted = false;
-                                   
-                                } else if(!canPlaceAttendant && !hasLastStepExecuted)
-                                {
-                                    // plaats volwassenen rechts;
-                                    step = "place attendant to right of child";
-                                }
-                            }
+                            adultPositions.Add(PlaceAdult(adultPositions, childPositions, area, visitor));
+                        }
+                    }
 
-                            if (step == "place attendant to the right of child")
-                            {
-                                foreach (var seat in area.Rows[0].Seats)
-                                {
-                                    if (seat.IsOccupied())
-                                    {
-                                        //do something
-                                        if (!area.Rows[1].Seats[area.Rows[0].Seats.IndexOf(seat)].IsOccupied())
-                                        {
-                                            //do something
-                                            step = "place attendant behind last person in first row";
-                                            break;
-                                        }  
-                                    }
-                                    else
-                                    {
-                                        //do something
-                                        break;
-                                    }
-                                }
-                            }
+                    placed = true;
+                    break;
+                }
+            }
 
-                            if (step == "place attendant behind last person in first row")
-                            {
-                                var lastTakenSeat = 0;
-                                foreach (var seat in area.Rows[1].Seats)
-                                {
-                                    if (seat.IsOccupied())
-                                    {
-                                        lastTakenSeat = area.Rows[1].Seats.IndexOf(seat);
-                                    }
-                                }
-                                
-                                //if seat left to last taken seat is free, place attendant there
-                                if (!area.Rows[1].Seats[lastTakenSeat - 1].IsOccupied())
-                                {
-                                    step = "place attendant to the left of last attendant second row";
-                                }
-                                //if seat behind last taken seat is free, place attendant there
-                                else if (!area.Rows[2].Seats[lastTakenSeat + 1].IsOccupied())
-                                {
-                                    step = "place attendant to the right of last attendant second row";
-                                } 
-                                
-                            }
+            if (!placed)
+            {
+                leftGroups.Add(group);
+            }
+        }
 
-                            switch (step)
+        foreach (var visitorGroup in leftGroups)
+        {
+            foreach (var visitor in visitorGroup.GetVisitors())
+            {
+                var placed = false;
+                foreach (var area in competition.Areas)
+                {
+                    if (placed)
+                    {
+                        break;
+                    }
+
+                    foreach (var row in area.Rows)
+                    {
+                        if (placed)
+                        {
+                            break;
+                        }
+
+                        foreach (var seat in row.Seats)
+                        {
+                            if (!seat.IsOccupied())
                             {
-                                case "place attendant behind child":
-                                    //Plaats de volwassen achter de kinderen
-                                    foreach (var childPosition in childPositions)
-                                    {
-                                        var seat = area.Rows[1].Seats[childPosition];
-                                        if (!seat.IsOccupied())
-                                        {
-                                            seat.PlaceVisitor(visitor);
-                                            hasLastStepExecuted = true;
-                                            break;
-                                        }
-                                    }
-                                    break;
-                                case "place attendant to right of child":
-                                    //Plaats de volwassen rechts van de kinderen
-                                     area.Rows[0].Seats[childPositions.Last() + 1].PlaceVisitor(visitor);
-                                    break;
-                                case"place attendant behind last person in first row":
-                                    var lastTakenSeat = 0;
-                                    foreach (var seat in area.Rows[0].Seats)
-                                    {
-                                        if (seat.IsOccupied())
-                                        {
-                                            lastTakenSeat = area.Rows[0].Seats.IndexOf(seat);
-                                        }
-                                    }
-                                    area.Rows[1].Seats[lastTakenSeat].PlaceVisitor(visitor);
-                                    break;
+                                seat.PlaceVisitor(visitor);
+                                placed = true;
+                                break;
                             }
                         }
                     }
-                    
-                    break;
-                } 
-                
-                 
-            } 
+                }
+            }
         }
-        
-        
-
-        /// <summary>
-        /// per groep checken :
-        /// kinderen eerst plaatsen op de eerste rij.
-        /// Volwassenen erachter
-        /// 
-        /// Volwassenen op de rij erachter plaatsen 
-        /// 
-
 
         //Creates the layout
-        LogVenue(competition);
+        LogVenue(competition, (List<VisitorGroup>)groupContainer.GetGroups(), visitorContainer.rejectedVisitors);
+    }
+
+    private static Coordinate PlaceAdult(List<Coordinate> adultPositions, List<Coordinate> childPositions, Area area,
+        Visitor visitor)
+    {
+        //if group has children
+        if (childPositions.Count > 0 && adultPositions.Count == 0)
+        {
+            return PlaceFirstAdultWithChildren(childPositions, area, visitor);
+        }
+        else
+        {
+            return PlaceAdult(adultPositions, area, visitor);
+        }
+    }
+
+    private static Coordinate PlaceFirstAdultWithChildren(List<Coordinate> childPositions,
+        Area area, Visitor visitor)
+    {
+        foreach (var childPosition in childPositions)
+        {
+            //Check seat to the left
+            if (!area.Rows[childPosition.RowNr].Seats[Math.Max(childPosition.SeatNr - 1, 0)]
+                    .IsOccupied())
+            {
+                area.Rows[childPosition.RowNr].Seats[childPosition.SeatNr - 1].PlaceVisitor(visitor);
+                return new Coordinate(childPosition.RowNr, childPosition.SeatNr - 1);
+            }
+
+            //Check seat behind
+            if (!area.Rows[Math.Min(childPosition.RowNr + 1, area.Rows.Count - 1)].Seats[childPosition.SeatNr]
+                    .IsOccupied())
+            {
+                area.Rows[childPosition.RowNr + 1].Seats[childPosition.SeatNr]
+                    .PlaceVisitor(visitor);
+                return new Coordinate(childPosition.RowNr + 1, childPosition.SeatNr);
+            }
+
+            //Check seat to the right
+            if (!area.Rows[childPosition.RowNr]
+                    .Seats[Math.Min(childPosition.SeatNr + 1,
+                        area.Rows[childPosition.RowNr].Seats.Count - 1)].IsOccupied())
+            {
+                area.Rows[childPosition.RowNr]
+                    .Seats[childPosition.SeatNr + 1].PlaceVisitor(visitor);
+                return new Coordinate(childPosition.RowNr, childPosition.SeatNr + 1);
+            }
+
+            //Check seat in front
+            if (!area.Rows[Math.Max(childPosition.RowNr - 1, 0)].Seats[childPosition.SeatNr]
+                    .IsOccupied())
+            {
+                area.Rows[childPosition.RowNr - 1].Seats[childPosition.SeatNr].PlaceVisitor(visitor);
+                return new Coordinate(childPosition.RowNr - 1, childPosition.SeatNr);
+            }
+        }
+
+        throw new Exception("No place found for adult");
+    }
+
+    private static Coordinate PlaceAdult(List<Coordinate> adultPositions, Area area, Visitor visitor)
+    {
+        var seatNr = 0;
+        if (adultPositions.Count == 0)
+        {
+            //start last rowindex to the left
+            switch (area.Rows.Count)
+            {
+                case 1:
+                    //place adult most left option
+                    foreach (var seat in area.Rows[0].Seats)
+                    {
+                        if (!seat.IsOccupied())
+                        {
+                            seat.PlaceVisitor(visitor);
+                            return new Coordinate(0, seatNr);
+                        }
+
+                        seatNr++;
+                    }
+
+                    break;
+                case 2:
+
+                    foreach (var seat in area.Rows[0].Seats)
+                    {
+                        if (!seat.IsOccupied())
+                        {
+                            seat.PlaceVisitor(visitor);
+                            return new Coordinate(0, seatNr);
+                        }
+
+                        seatNr++;
+                    }
+
+                    seatNr = area.Rows[1].Seats.Count - 1;
+                    for (; seatNr >= 0; seatNr--)
+                    {
+                        if (!area.Rows[1].Seats[seatNr].IsOccupied())
+                        {
+                            area.Rows[1].Seats[seatNr].PlaceVisitor(visitor);
+                            return new Coordinate(1, seatNr);
+                        }
+                    }
+
+                    break;
+                case 3:
+                    foreach (var seat in area.Rows[0].Seats)
+                    {
+                        if (!seat.IsOccupied())
+                        {
+                            seat.PlaceVisitor(visitor);
+                            return new Coordinate(0, seatNr);
+                        }
+
+                        seatNr++;
+                    }
+
+                    seatNr = area.Rows[1].Seats.Count - 1;
+                    for (; seatNr >= 0; seatNr--)
+                    {
+                        if (!area.Rows[1].Seats[seatNr].IsOccupied())
+                        {
+                            area.Rows[1].Seats[seatNr].PlaceVisitor(visitor);
+                            return new Coordinate(1, seatNr);
+                        }
+                    }
+
+                    seatNr = 0;
+                    foreach (var seat in area.Rows[2].Seats)
+                    {
+                        if (!seat.IsOccupied())
+                        {
+                            seat.PlaceVisitor(visitor);
+                            return new Coordinate(2, seatNr);
+                        }
+
+                        seatNr++;
+                    }
+
+                    break;
+            }
+        }
+        else
+        {
+            switch (area.Rows.Count)
+            {
+                case 1:
+                    area.Rows[0].Seats[adultPositions.Last().SeatNr + 1].PlaceVisitor(visitor);
+                    return new Coordinate(0, adultPositions.Last().SeatNr + 1);
+                case 2:
+                    foreach (var seat in area.Rows[1].Seats)
+                    {
+                        if (!seat.IsOccupied())
+                        {
+                            seat.PlaceVisitor(visitor);
+                            return new Coordinate(1, seatNr);
+                        }
+
+                        seatNr++;
+                    }
+
+                    seatNr = area.Rows[0].Seats.Count - 1;
+                    for (; seatNr >= 0; seatNr--)
+                    {
+                        if (!area.Rows[0].Seats[seatNr].IsOccupied())
+                        {
+                            area.Rows[0].Seats[seatNr].PlaceVisitor(visitor);
+                            return new Coordinate(0, seatNr);
+                        }
+                    }
+
+                    break;
+                case 3:
+                    for (int i = adultPositions.Count - 1; i >= 0; i--)
+                    {
+                        //Check seat to the left
+                        if (!area.Rows[adultPositions[i].RowNr].Seats[Math.Max(adultPositions[i].SeatNr - 1, 0)]
+                                .IsOccupied())
+                        {
+                            area.Rows[adultPositions[i].RowNr].Seats[adultPositions[i].SeatNr - 1]
+                                .PlaceVisitor(visitor);
+                            return new Coordinate(adultPositions[i].RowNr, adultPositions[i].SeatNr - 1);
+                        }
+
+                        //if not last row
+                        if (adultPositions[i].RowNr != 2)
+                        {
+                            //Check seat behind
+                            if (!area.Rows[Math.Min(adultPositions[i].RowNr + 1, 2)].Seats[adultPositions[i].SeatNr]
+                                    .IsOccupied())
+                            {
+                                area.Rows[adultPositions[i].RowNr + 1].Seats[adultPositions[i].SeatNr]
+                                    .PlaceVisitor(visitor);
+                                return new Coordinate(adultPositions[i].RowNr + 1, adultPositions[i].SeatNr);
+                            }
+
+                            //if not first row
+                            //Check seat behind to the right
+                            if (adultPositions[i].RowNr != 0)
+                            {
+                                if (!area.Rows[Math.Min(adultPositions[i].RowNr + 1, 2)]
+                                        .Seats[Math.Min(adultPositions[i].SeatNr + 1,
+                                            area.Rows[adultPositions[i].RowNr].Seats.Count - 1)].IsOccupied())
+                                {
+                                    area.Rows[adultPositions[i].RowNr + 1]
+                                        .Seats[adultPositions[i].SeatNr + 1].PlaceVisitor(visitor);
+                                    return new Coordinate(adultPositions[i].RowNr + 1, adultPositions[i].SeatNr + 1);
+                                }
+                            }
+                        }
+
+                        //Check seat in front
+                        if (!area.Rows[Math.Max(adultPositions[i].RowNr - 1, 0)].Seats[adultPositions[i].SeatNr]
+                                .IsOccupied())
+                        {
+                            area.Rows[adultPositions[i].RowNr - 1].Seats[adultPositions[i].SeatNr]
+                                .PlaceVisitor(visitor);
+                            return new Coordinate(adultPositions[i].RowNr - 1, adultPositions[i].SeatNr);
+                        }
+
+                        //Check seat to the right
+                        if (!area.Rows[adultPositions[i].RowNr]
+                                .Seats[Math.Min(adultPositions[i].SeatNr + 1,
+                                    area.Rows[adultPositions[i].RowNr].Seats.Count - 1)].IsOccupied())
+                        {
+                            area.Rows[adultPositions[i].RowNr]
+                                .Seats[adultPositions[i].SeatNr + 1].PlaceVisitor(visitor);
+                            return new Coordinate(adultPositions[i].RowNr, adultPositions[i].SeatNr + 1);
+                        }
+
+                        //check 2 seats to the right
+                        if (!area.Rows[adultPositions[i].RowNr]
+                                .Seats[Math.Min(adultPositions[i].SeatNr + 2,
+                                    area.Rows[adultPositions[i].RowNr].Seats.Count - 1)].IsOccupied())
+                        {
+                            area.Rows[adultPositions[i].RowNr]
+                                .Seats[adultPositions[i].SeatNr + 2].PlaceVisitor(visitor);
+                            return new Coordinate(adultPositions[i].RowNr, adultPositions[i].SeatNr + 2);
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        Console.WriteLine("No seat found");
+        var rowsCount = area.Rows.Count;
+
+        //calculate the row width based on the amount of seats
+        var rowWidth = area.Rows[0].Seats.Count;
+
+        //prints out the layout to the console in nested for loops for a rectangular layout
+        for (var i = 0; i < rowWidth; i++)
+        {
+            for (var j = 0; j < rowsCount; j++)
+            {
+                if (area.Rows[j].Seats[i].IsOccupied())
+                {
+                    //Prints out the placed visitors with the area and seatcode and the occupant.
+                    Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}]");
+                }
+                else
+                {
+                    Console.Write("[ ]");
+                }
+            }
+
+            Console.Write("\r\n");
+        }
+
+
+        throw new Exception("No seat found");
+    }
+
+    private static Coordinate placeChild(Area area, Visitor visitor)
+    {
+        var seatnumber = 0;
+        //Kijk of de eerste rij vrij is en plaats als het kan
+        foreach (var seat in area.Rows[0].Seats)
+        {
+            if (!seat.IsOccupied())
+            {
+                seat.PlaceVisitor(visitor);
+                return new Coordinate(0, seatnumber);
+            }
+
+            seatnumber++;
+        }
+
+        Console.WriteLine("No seat found");
+        var rowsCount = area.Rows.Count;
+
+        //calculate the row width based on the amount of seats
+        var rowWidth = area.Rows[0].Seats.Count;
+
+        //prints out the layout to the console in nested for loops for a rectangular layout
+        for (var i = 0; i < rowWidth; i++)
+        {
+            for (var j = 0; j < rowsCount; j++)
+            {
+                if (area.Rows[j].Seats[i].IsOccupied())
+                {
+                    //Prints out the placed visitors with the area and seatcode and the occupant.
+                    Console.Write($"[{area.Rows[j].Seats[i].Visitor.GroupId}]");
+                }
+                else
+                {
+                    Console.Write("[ ]");
+                }
+            }
+
+            Console.Write("\r\n");
+        }
+
+        throw new Exception("No seat found");
     }
 
 
@@ -456,7 +662,8 @@ public class Program
     }
 
     //Creates the layout of the venue
-    private static void LogVenue(Competition.Competition competition)
+    private static void LogVenue(Competition.Competition competition, List<VisitorGroup> groups,
+        List<Visitor> rejectedVisitors)
     {
         //Layout has to be generated based on with and length
         foreach (var area in competition.Areas)
@@ -487,6 +694,52 @@ public class Program
             }
 
             Console.Write("\r\n");
+        }
+
+        //Prints out the rejected visitors
+        Console.WriteLine("Rejected visitors:");
+        foreach (var visitor in rejectedVisitors)
+        {
+            Console.WriteLine($"{visitor.GroupId} - {visitor.Rejection}");
+        }
+
+        //Prints out the visitors that have not been handled correctly
+        foreach (var group in groups)
+        {
+            foreach (var visitor in group.GetVisitors())
+            {
+                var visitorFound = false;
+                foreach (var area in competition.Areas)
+                {
+                    foreach (var row in area.Rows)
+                    {
+                        foreach (var seat in row.Seats)
+                        {
+                            if (seat.Visitor == visitor)
+                            {
+                                visitorFound = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!visitorFound)
+                {
+                    var visitorRejected = false;
+                    foreach (var rejectee in rejectedVisitors)
+                    {
+                        if (rejectee == visitor)
+                        {
+                            visitorRejected = true;
+                        }
+                    }
+
+                    if (!visitorRejected)
+                    {
+                        Console.WriteLine($"Visitor {visitor.GroupId} was not accounted for");
+                    }
+                }
+            }
         }
     }
 }
