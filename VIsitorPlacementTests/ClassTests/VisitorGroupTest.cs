@@ -55,7 +55,7 @@ public class VisitorGroupTest
         var result = visitorGroup.AmountOfKids(eventdate);
         
         //assert
-        Assert.IsTrue(result > 1);
+        Assert.IsTrue(result > 0);
     }
 
     [TestMethod]
