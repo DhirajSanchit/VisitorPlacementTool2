@@ -27,15 +27,15 @@ public class SortingTests
         //act
         GroupContainer _container = new(list);
         _container.SortGroups(date);
-        var groupa = list.First().AmountOfKids(date);
-        var groupb = list.Last().AmountOfKids(date);
+        var BiggerGroup = list.First().AmountOfKids(date);
+        var SmallerGroup = list.Last().AmountOfKids(date);
         
         //assert
-        Assert.IsTrue(groupa > groupb, "The list is not sorted by amount of kids");
+        Assert.IsTrue(BiggerGroup > SmallerGroup, "The list is not sorted by amount of kids");
     }
     
     [TestMethod]
-    //Tests if visitorgroup in container is added sorted by highest amount of kids
+    //Tests if Area in competition is sorted sorted by highest amount of kids
     //then grouped by highest total amount
     public void SortAreaByBiggestSize_InCompetition_HighestAmountFirstLowestLast()
     {
@@ -58,8 +58,6 @@ public class SortingTests
         //assert
         Assert.IsTrue(AreaA > AreaB, "Area's not sorted correctly, biggest isn't first");
     }
-    
-
 }
  
 
