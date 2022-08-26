@@ -152,10 +152,10 @@ public class Program
 
         //sorts all the available groups
         groupContainer.SortGroups(competitionDate);
-        var leftGroups = new List<VisitorGroup>();
+        var leftToPlaceGroups = new List<VisitorGroup>();
         //Place the groups in the areas
 
-        //Select minors from the groups and store them ina list
+        
         foreach (var group in groupContainer.GetGroups())
         {
             var visitors = group.GetVisitors();
@@ -197,12 +197,12 @@ public class Program
             if (!placed)
             {
                 //All the groups that can't be placed for now are stored.
-                leftGroups.Add(group);
+                leftToPlaceGroups.Add(group);
             }
         }
 
         //Now check for the groups that couldn't be placed
-        foreach (var visitorGroup in leftGroups)
+        foreach (var visitorGroup in leftToPlaceGroups)
         {
             foreach (var visitor in visitorGroup.GetVisitors())
             {
